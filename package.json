@@ -1,0 +1,16 @@
+{
+  "name": "docgenapi",
+  "version": "1.0.0",
+  "description": "API for generating Word documents from form submissions",
+  "main": "index.js",
+  "scripts": {
+    "start": "npx vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "keywords": ["docx", "document", "api", "serverless", "vercel"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "docx": "^7.8.0"
+  }
+}
