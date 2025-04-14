@@ -35,26 +35,15 @@ module.exports = async (req, res) => {
     // Generate the document based on form type
     const doc = await generateDocument(formType, data);
     
-    try {
-      // Use Packer to generate a buffer with compatibility mode
-      const buffer = await Packer.toBuffer(doc, {
-        // Add specific configuration for packing that improves Google Docs compatibility
-        compatibility: true
-      });
+    // Use Packer to generate a buffer
+    const buffer = await Packer.toBuffer(doc);
 
-      // Set response headers for file download with caching disabled to prevent preview issues
-      res.setHeader('Content-Disposition', `attachment; filename="${formType}-form.docx"`);
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      
-      // Send the document
-      res.status(200).send(buffer);
-    } catch (packingError) {
-      console.error('Error packing document:', packingError);
-      res.status(500).json({ error: 'Failed to package document' });
-    }
+    // Set response headers for file download
+    res.setHeader('Content-Disposition', `attachment; filename="${formType}-form.docx"`);
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    
+    // Send the document
+    res.send(buffer);
 
   } catch (error) {
     console.error('Error generating document:', error);
@@ -79,25 +68,25 @@ function createHeaderWithLogos() {
     }
     
     // Convert inches to points (1 inch = 72 points)
-    const leftLogoWidth = 1.5 * 72; // Reduced size for better compatibility
-    const leftLogoHeight = 0.4 * 72; // Reduced size for better compatibility
-    const rightLogoWidth = 1.5 * 72; // Reduced size for better compatibility
-    const rightLogoHeight = 0.4 * 72; // Reduced size for better compatibility
+    const leftLogoWidth = 3.14 * 72; // 226.08 points
+    const leftLogoHeight = 0.67 * 72; // 48.24 points
+    const rightLogoWidth = 2.86 * 72; // 205.92 points
+    const rightLogoHeight = 0.63 * 72; // 45.36 points
     
     try {
       const leftBuffer = fs.readFileSync(logoLeftPath);
       const rightBuffer = fs.readFileSync(logoRightPath);
       
-      // Create visible header with both logos using a table with visible borders
+      // Create visible header with both logos using a table
       const headerTable = new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
         borders: {
-          top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-          bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-          left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-          right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-          insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-          insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+          top: { style: BorderStyle.NONE },
+          bottom: { style: BorderStyle.NONE },
+          left: { style: BorderStyle.NONE },
+          right: { style: BorderStyle.NONE },
+          insideHorizontal: { style: BorderStyle.NONE },
+          insideVertical: { style: BorderStyle.NONE },
         },
         rows: [
           new TableRow({
@@ -105,10 +94,10 @@ function createHeaderWithLogos() {
               new TableCell({
                 width: { size: 50, type: WidthType.PERCENTAGE },
                 borders: {
-                  top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+                  top: { style: BorderStyle.NONE },
+                  bottom: { style: BorderStyle.NONE },
+                  left: { style: BorderStyle.NONE },
+                  right: { style: BorderStyle.NONE },
                 },
                 children: [
                   new Paragraph({
@@ -127,10 +116,10 @@ function createHeaderWithLogos() {
               new TableCell({
                 width: { size: 50, type: WidthType.PERCENTAGE },
                 borders: {
-                  top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                  right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+                  top: { style: BorderStyle.NONE },
+                  bottom: { style: BorderStyle.NONE },
+                  left: { style: BorderStyle.NONE },
+                  right: { style: BorderStyle.NONE },
                 },
                 children: [
                   new Paragraph({
@@ -172,24 +161,18 @@ function createLogoPlaceholders() {
     new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       borders: {
-        top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-        bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-        left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-        right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-        insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-        insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+        top: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        bottom: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        left: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        right: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
+        insideHorizontal: { style: BorderStyle.NONE },
+        insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "000000" },
       },
       rows: [
         new TableRow({
           children: [
             new TableCell({
               width: { size: 50, type: WidthType.PERCENTAGE },
-              borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              },
               children: [
                 new Paragraph({
                   children: [
@@ -205,12 +188,6 @@ function createLogoPlaceholders() {
             }),
             new TableCell({
               width: { size: 50, type: WidthType.PERCENTAGE },
-              borders: {
-                top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-                right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              },
               children: [
                 new Paragraph({
                   children: [
@@ -236,20 +213,20 @@ function createLogoPlaceholders() {
 function createDataTable(data, formType) {
   const rows = [];
   
-  // Add data rows based on form type in a two-column layout for better compatibility
+  // Add data rows based on form type in a single column layout (field name, then value)
   Object.entries(data).forEach(([key, value]) => {
+    // Field name row with light gray background
     rows.push(
       new TableRow({
         children: [
-          // First column: Field name
           new TableCell({
             borders: {
-              top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
             },
-            width: { size: 30, type: WidthType.PERCENTAGE },
+            width: { size: 100, type: WidthType.PERCENTAGE },
             shading: {
               fill: "F0F0F0", // Light gray background
             },
@@ -259,29 +236,36 @@ function createDataTable(data, formType) {
                   new TextRun({
                     text: key.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
                     bold: true,
-                    size: 24,
-                    font: "Calibri",
+                    size: 24, // Bigger font
+                    font: "Calibri", // More readable font
                   }),
                 ],
               }),
             ],
           }),
-          // Second column: Value
+        ],
+      })
+    );
+    
+    // Value row (white background)
+    rows.push(
+      new TableRow({
+        children: [
           new TableCell({
             borders: {
-              top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-              right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+              top: { style: BorderStyle.NONE },
+              bottom: { style: BorderStyle.NONE },
+              left: { style: BorderStyle.NONE },
+              right: { style: BorderStyle.NONE },
             },
-            width: { size: 70, type: WidthType.PERCENTAGE },
+            width: { size: 100, type: WidthType.PERCENTAGE },
             children: [
               new Paragraph({
                 children: [
                   new TextRun({
-                    text: value ? value.toString() : "",
-                    size: 24,
-                    font: "Calibri",
+                    text: value.toString(),
+                    size: 24, // Bigger font
+                    font: "Calibri", // More readable font
                   }),
                 ],
               }),
@@ -295,12 +279,12 @@ function createDataTable(data, formType) {
   return new Table({
     width: { size: 100, type: WidthType.PERCENTAGE },
     borders: {
-      top: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-      bottom: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-      left: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-      right: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
-      insideVertical: { style: BorderStyle.SINGLE, size: 1, color: "CCCCCC" },
+      top: { style: BorderStyle.NONE },
+      bottom: { style: BorderStyle.NONE },
+      left: { style: BorderStyle.NONE },
+      right: { style: BorderStyle.NONE },
+      insideHorizontal: { style: BorderStyle.SINGLE, size: 1, color: "F0F0F0" }, // Very light gray or remove completely
+      insideVertical: { style: BorderStyle.NONE },
     },
     rows: rows,
   });
@@ -317,8 +301,8 @@ function createConfidentialityNotice() {
           text: "Confidential: This document contains sensitive information. Please share only with trusted parties and with caution.",
           italics: true,
           color: "808080", // Gray text
-          size: 18, // Slightly smaller font for better compatibility
-          font: "Arial", // More standard font for better compatibility
+          size: 20, // Bigger font
+          font: "Calibri", // More readable font
         }),
       ],
       alignment: AlignmentType.CENTER,
@@ -339,12 +323,12 @@ async function generateDocument(formType, data) {
       new TextRun({
         text: `${formType.toUpperCase()} FORM`,
         bold: true,
-        size: 32, // Slightly smaller for better compatibility
-        font: "Arial", // More standard font for better compatibility
+        size: 36, // Bigger font
+        font: "Calibri", // More readable font
       }),
     ],
     alignment: AlignmentType.CENTER,
-    spacing: { after: 300 },
+    spacing: { after: 400 },
   });
   
   // Create document sections
@@ -359,19 +343,8 @@ async function generateDocument(formType, data) {
     creator: "CDHPM DocGen",
     description: "Automatically generated document",
     title: `${formType} Form`,
-    compatibility: { doNotUseFloatingTableGrid: true }, // Improves compatibility with Google Docs
-    externalStyles: false, // Simplifies style management
     sections: [{
-      properties: {
-        page: {
-          margin: {
-            top: 1000,
-            right: 1000,
-            bottom: 1000,
-            left: 1000,
-          },
-        },
-      },
+      properties: {},
       children: children
     }],
     styles: {
@@ -383,12 +356,12 @@ async function generateDocument(formType, data) {
           next: "Normal",
           quickFormat: true,
           run: {
-            size: 22, // Slightly smaller font for better compatibility
-            font: "Arial", // More standard font for better compatibility
+            size: 24, // Default size for better readability
+            font: "Calibri",
           },
           paragraph: {
             spacing: {
-              line: 276, // Reduced line spacing for better compatibility
+              line: 360, // Improved line spacing
             },
           },
         },
